@@ -46,18 +46,18 @@ def get_article():
 
 def clean_article(article):
     '''Remove references, h2, figures, notes, .infobox, .shortdescription, .mw-editsection'''
-    for reference_elem in article.find_all(class_='reference'):
-        reference_elem.decompose()
-    for heading in article.find_all('h2'):
-        heading.decompose()
-    for fig in article.find_all('figure'):
-        fig.decompose()
-    for note in article.find_all(attrs={'role': 'note'}):
-        note.decompose()
-    article.find(class_='infobox').decompose()
-    article.find(class_='shortdescription').decompose()
-    for edit in article.find_all(class_='mw-editsection'):
-        edit.decompose()
+    decompose_all(article.find_all(class_='reference'))
+    decompose_all(article.find_all('h2'))
+    decompose_all(article.find_all('figure'))
+    decompose_all(article.find_all(attrs={'role': 'note'}))
+    decompose_all(article.find_all(class_='infobox'))
+    decompose_all(article.find_all(class_='shortdescription'))
+    decompose_all(article.find_all(class_='mw-editsection'))
+
+def decompose_all(elements):
+    '''Call bs tag.decompose on all elements in iterable'''
+    for elem in elements:
+        elem.decompose()
 
 
 def recursive_append_text(element, text=''):
@@ -68,6 +68,7 @@ def recursive_append_text(element, text=''):
     inner_text = ''
     for child in element.contents:
         inner_text += recursive_append_text(child, text)
-    # if element.name == 'p':
+    if element.name == 'p' and len(element.contents) > 0:
         # inner_text += '\nabcdefghijklmnop\n'
+        inner_text += '\n'
     return inner_text
