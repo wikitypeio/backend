@@ -33,8 +33,11 @@ def get_article():
         if img is None:
             continue
         src = img.attrs['src'].replace('//', '')    # srcs are prefixed with '//'
-        caption = figure.find('figcaption').get_text()
-        images.append({'src': src, 'caption': caption})
+        caption = figure.find('canvas')
+        caption_text = None
+        if caption is not None:
+            caption_text = caption.get_text()
+        images.append({'src': src, 'caption': caption_text})
     response['images'] = images
 
     # get text passage from article
