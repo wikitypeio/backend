@@ -86,15 +86,14 @@ def recursive_append_text(element, tracking_ranges, total_text_dict={'total_text
     total_text_dict['total_text'] += inner_text
 
     track_range(element, is_link_to_article, link_transform, tracking_ranges['links'],
-                len(total_text_dict['total_text']), len(inner_text), total_text_dict['total_text'])
+                len(total_text_dict['total_text']), len(inner_text))
     return inner_text
 
-def track_range(el, el_predicate, el_transform, tracking_list, start, length, text):
+def track_range(el, el_predicate, el_transform, tracking_list, start, length):
     '''If element passes el_predicate, add el_transform(el) to list'''
     if el_predicate(el):
         base_obj = el_transform(el)
-        tracked_obj = {**base_obj, 'start': start,
-            'end': start + length + 1, 'text': text}
+        tracked_obj = {**base_obj, 'start': start, 'end': start + length + 1}
         tracking_list.append(tracked_obj)
 
 def is_link_to_article(element):
