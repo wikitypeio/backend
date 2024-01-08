@@ -45,11 +45,9 @@ def get_article():
     #   contents data because link and decoration ranges depend on indices
     #   within the plaintext string
     clean_article(article)
-    tracking_ranges = {
-        'links': [],
-    }
-    plain_text = recursive_append_text(article, tracking_ranges)
-    response['passage'] = {'plaintext': plain_text, 'trackingRanges': tracking_ranges}
+    tracked_elements = []
+    plain_text = recursive_append_text(article, tracked_elements)
+    response['passage'] = {'plaintext': plain_text, 'elementRanges': tracked_elements}
 
     return response
 
@@ -75,17 +73,20 @@ def decompose_all(elements):
         elem.decompose()
 
 
-def recursive_append_text(element, tracking_ranges, total_text_dict={'total_text': ''}):
+# Using dictionary for total_text so all references point to same object
+def recursive_append_text(element, tracked_elements,
+                          total_text_dict={'total_text': ''}):
     '''Get text and annotation ranges'''
     if isinstance(element, NavigableString) or len(element.contents) == 0:
         return element.get_text().replace('\n', '')
 
     inner_text = ''
     for child in element.contents:
-        inner_text += recursive_append_text(child, tracking_ranges, total_text_dict=total_text_dict)
+        inner_text += recursive_append_text(child, tracked_elements,
+                                            total_text_dict=total_text_dict)
     total_text_dict['total_text'] += inner_text
 
-    track_range(element, is_link_to_article, link_transform, tracking_ranges['links'],
+    track_range(element, is_link_to_article, link_transform, tracked_elements,
                 len(total_text_dict['total_text']), len(inner_text))
     return inner_text
 
@@ -103,4 +104,4 @@ def is_link_to_article(element):
 
 def link_transform(element):
     '''Transform link elements'''
-    return {'href': element.attrs['href']}
+    return {'type': 'link', 'href': element.attrs['href']}
